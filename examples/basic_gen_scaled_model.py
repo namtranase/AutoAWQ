@@ -1,8 +1,8 @@
 from awq import AutoAWQForCausalLM
 from transformers import AutoTokenizer
 
-model_path = '/data/namtd12/llm_models/llama-7b'
-quant_path = 'quant_models/llm_models/llama-7b'
+model_path = 'llm_models/llama-7b'
+quant_path = 'llm_models/scaled-llama-7b'
 quant_config = { "zero_point": True, "q_group_size": 128, "w_bit": 4, "version": "GEMM" }
 
 # Load model
