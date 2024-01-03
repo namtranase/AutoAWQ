@@ -184,6 +184,56 @@ generation_output = model.generate(
 )
 ```
 
+
+</details>
+
+<details>
+
+<summary>Convert to GGUF model via llama.cpp</summary>
+
+Original repo: [llama.cpp](https://github.com/ggerganov/llama.cpp)
+
+`Step 1`: Apply AWQ scale to the original model
+
+```python
+from awq import AutoAWQForCausalLM
+from transformers import AutoTokenizer
+
+model_path = 'llm_models/llama-7b'
+scaled_path = 'llm_models/scaled-llama-7b'
+quant_config = { "zero_point": True, "q_group_size": 128, "w_bit": 4, "version": "GEMM" }
+
+# Load model
+# NOTE: pass safetensors=True to load safetensors
+model = AutoAWQForCausalLM.from_pretrained(
+    model_path, **{"low_cpu_mem_usage": True, "use_cache": False}
+)
+tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+
+# Quantize
+model.quantize(tokenizer, quant_config=quant_config, save_scaled_model=True)
+
+# Save quantized model
+model.save_quantized(scaled_path)
+tokenizer.save_pretrained(scaled_path)
+
+print(f'Model is scaled and saved at "{scaled_path}"')
+```
+
+`Step 2`: Convert to GGUF model file (please refer to the original repo for installation and run the examples)
+```bash
+# Convert to f16 gguf model
+python convert.py llm_models/scaled-llama-7b --outfile models/f16.gguf 
+
+# Run the model
+./main -m models/f16.gguf -p "Once upon a time" -n 128
+
+# Quantize model
+./quantize models/f16.gguf model/q4_0.gguf q4_0
+
+# Run quantized model
+./main -m models/q4_0.gguf -p "Once upon a time" -n 128
+```
 </details>
 
 ## Benchmarks
