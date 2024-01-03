@@ -195,33 +195,16 @@ Original repo: [llama.cpp](https://github.com/ggerganov/llama.cpp)
 
 `Step 1`: Apply AWQ scale to the original model
 
+Refer to [basic_gen_scaled_model](examples/basic_gen_scaled_model.py) for detailed example
 ```python
-from awq import AutoAWQForCausalLM
-from transformers import AutoTokenizer
-
-model_path = 'llm_models/llama-7b'
-scaled_path = 'llm_models/scaled-llama-7b'
-quant_config = { "zero_point": True, "q_group_size": 128, "w_bit": 4, "version": "GEMM" }
-
-# Load model
-# NOTE: pass safetensors=True to load safetensors
-model = AutoAWQForCausalLM.from_pretrained(
-    model_path, **{"low_cpu_mem_usage": True, "use_cache": False}
-)
-tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-
-# Quantize
+# The most important part is running quantize with save_scaled_model=True
 model.quantize(tokenizer, quant_config=quant_config, save_scaled_model=True)
-
-# Save quantized model
-model.save_quantized(scaled_path)
-tokenizer.save_pretrained(scaled_path)
-
-print(f'Model is scaled and saved at "{scaled_path}"')
 ```
 
 `Step 2`: Convert to GGUF model file (please refer to the original repo for installation and instruction for running examples)
 ```bash
+cd llama.cpp
+
 # Convert to f16 gguf model
 python convert.py llm_models/scaled-llama-7b --outfile models/f16.gguf 
 
