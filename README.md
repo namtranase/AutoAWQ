@@ -220,7 +220,7 @@ tokenizer.save_pretrained(scaled_path)
 print(f'Model is scaled and saved at "{scaled_path}"')
 ```
 
-`Step 2`: Convert to GGUF model file (please refer to the original repo for installation and run the examples)
+`Step 2`: Convert to GGUF model file (please refer to the original repo for installation and instruction for running examples)
 ```bash
 # Convert to f16 gguf model
 python convert.py llm_models/scaled-llama-7b --outfile models/f16.gguf 
